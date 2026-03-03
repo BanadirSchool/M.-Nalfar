@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>M. Nalfar Electronics | Business Management System</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        :root {
+            --orange: #ff6600;
+            --orange-light: #ff8533;
+            --orange-dark: #cc5200;
+            --dark-blue: #0a1f44;
+            --dark-blue-light: #122b5c;
+            --black: #111111;
+            --black-light: #1e1e1e;
+            --white: #ffffff;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px rgba(0,0,0,0.15);
+        }
+
+        .dark-mode {
+            --dark-blue: #0a1f44;
+            --black: #000000;
+            --white: #f3f4f6;
+            --gray-100: #1e1e1e;
+            --gray-200: #2d2d2d;
+            --gray-300: #404040;
+            --gray-400: #666666;
+            --gray-500: #999999;
+            --gray-600: #cccccc;
+            --glass-bg: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-blue) 0%, var(--black) 100%);
+            color: var(--white);
+            min-height: 100vh;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Glass Card Effect */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes counter {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease forwards;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Layout */
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem 1rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 3rem;
+            color: var(--white);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .company-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--orange);
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .nav-item i {
+            width: 24px;
+            margin-right: 12px;
+            color: var(--orange);
+        }
+
+        .nav-item:hover {
+            background: var(--orange);
+            color: var(--white);
+            transform: translateX(5px);
+        }
+
+        .nav-item:hover i {
+            color: var(--white);
+        }
+
+        .nav-item.active {
+            background: var(--orange);
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-item.active i {
+            color: var(--white);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--orange);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Language Toggle */
+        .lang-toggle {
+            display: flex;
+            background: var(--glass-bg);
+            border-radius: 30px;
+            padding: 0.3rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .lang-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            color: var(--white);
+            cursor: pointer;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn.active {
+            background: var(--orange);
+            color: var(--white);
+        }
+
+        /* Dark/Light Toggle */
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--orange);
+            transform: rotate(180deg);
+        }
+
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-info h3 {
+            font-size: 1rem;
+            color: var(--gray-400);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--orange);
+            animation: counter 1s ease;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--orange);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--white);
+        }
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            padding: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--orange);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .quick-btn {
+            padding: 1rem 2rem;
+            background: var(--orange);
+            color: var(--white);
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .quick-btn:hover {
+            background: var(--orange-dark);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .quick-btn i {
+            font-size: 1.2rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 15px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--orange);
+            color: var(--white);
+            padding: 1rem;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        tr:hover {
+            background: var(--glass-bg);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--orange);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--orange-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: var(--white);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--gray-300);
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--white);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.2);
+        }
+
+        .form-control::placeholder {
+            color: var(--gray-400);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--dark-blue), var(--black));
+            padding: 2rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--orange);
+        }
+
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--orange);
+            transform: rotate(90deg);
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 2rem;
+            background: var(--success);
+            color: var(--white);
+            border-radius: 10px;
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+            display: none;
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        .notification.warning {
+            background: var(--warning);
+        }
+
+        /* Game Section */
+        .game-section {
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+            border-radius: 20px;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .game-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--white);
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .game-stat {
+            font-size: 1.2rem;
+            color: var(--white);
+        }
+
+        .game-question {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--white);
+        }
+
+        .game-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .game-option {
+            padding: 1rem;
+            background: var(--glass-bg);
+            border: 2px solid var(--white);
+            border-radius: 10px;
+            color: var(--white);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .game-option:hover {
+            background: var(--white);
+            color: var(--orange);
+        }
+
+        .game-option.correct {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .game-option.incorrect {
+            background: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .leaderboard {
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .leaderboard h3 {
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--orange);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            transform: translateY(-5px);
+            background: var(--orange-dark);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .mobile-sidebar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 70px;
+                background: var(--dark-blue);
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                z-index: 100;
+                border-top: 1px solid var(--glass-border);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+                padding-bottom: 80px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .quick-actions {
+                justify-content: center;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .sidebar, .header, .quick-actions, .footer, .theme-toggle, .lang-toggle {
+                display: none;
+            }
+
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                padding: 0;
+            }
+
+            .glass-card {
+                break-inside: avoid;
+                border: 1px solid #000;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Sidebar -->
+    <div class="mobile-sidebar" id="mobileSidebar"></div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo-area">
+                <div class="logo">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <div class="company-name">M. Nalfar Electronics</div>
+                <div style="color: var(--gray-400); font-size: 0.9rem;">Technology & Solutions</div>
+            </div>
+
+            <div class="nav-items" id="navItems">
+                <div class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span data-en="Dashboard" data-so="Dashboard">Dashboard</span>
+                </div>
+                <div class="nav-item" data-page="inventory">
+                    <i class="fas fa-boxes"></i>
+                    <span data-en="Inventory" data-so="Alaabta">Inventory</span>
+                </div>
+                <div class="nav-item" data-page="sales">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span data-en="Sales" data-so="Iibinta">Sales</span>
+                </div>
+                <div class="nav-item" data-page="debts">
+                    <i class="fas fa-hand-holding-usd"></i>
+                    <span data-en="Debts" data-so="Deemaha">Debts</span>
+                </div>
+                <div class="nav-item" data-page="reports">
+                    <i class="fas fa-chart-line"></i>
+                    <span data-en="Reports" data-so="Warbixin">Reports</span>
+                </div>
+                <div class="nav-item" data-page="orders">
+                    <i class="fas fa-truck"></i>
+                    <span data-en="Orders" data-so="Alaabta Cusub">Orders</span>
+                </div>
+                <div class="nav-item" data-page="customers">
+                    <i class="fas fa-users"></i>
+                    <span data-en="Customers" data-so="Macaamiisha">Customers</span>
+                </div>
+                <div class="nav-item" data-page="suppliers">
+                    <i class="fas fa-building"></i>
+                    <span data-en="Suppliers" data-so="Shirkadaha">Suppliers</span>
+                </div>
+                <div class="nav-item" data-page="employees">
+                    <i class="fas fa-user-tie"></i>
+                    <span data-en="Employees" data-so="Shaqaalaha">Employees</span>
+                </div>
+                <div class="nav-item" data-page="expenses">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span data-en="Expenses" data-so="Kharashaadka">Expenses</span>
+                </div>
+                <div class="nav-item" data-page="game">
+                    <i class="fas fa-gamepad"></i>
+                    <span data-en="Brain Game" data-so="Ciyaarta">Brain Game</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                <div class="header-actions">
+                    <div class="lang-toggle">
+                        <button class="lang-btn active" data-lang="en">🇬🇧 EN</button>
+                        <button class="lang-btn" data-lang="so">🇸🇴 SO</button>
+                    </div>
+                    <div class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div id="contentArea"></div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <div class="social-icons">
+                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+                </div>
+                <div>© <span id="currentYear"></span> M. Nalfar Electronics & Technology Co. All rights reserved.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Modal Title</h2>
+                <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // Language System
+        let currentLang = 'en';
+        const translations = {
+            en: {
+                // Navigation
+                dashboard: 'Dashboard',
+                inventory: 'Inventory',
+                sales: 'Sales',
+                debts: 'Debts',
+                reports: 'Reports',
+                orders: 'Orders',
+                customers: 'Customers',
+                suppliers: 'Suppliers',
+                employees: 'Employees',
+                expenses: 'Expenses',
+                game: 'Brain Game',
+                
+                // Dashboard
+                totalProducts: 'Total Products',
+                totalSales: 'Total Sales Today',
+                totalDebts: 'Total Debts',
+                totalExpenses: 'Total Expenses',
+                totalCustomers: 'Total Customers',
+                salesChart: 'Sales Chart',
+                profitChart: 'Profit Chart',
+                welcomeMessage: 'Welcome back, Admin!',
+                
+                // Buttons
+                addProduct: 'Add Product',
+                newSale: 'New Sale',
+                printReport: 'Print Report',
+                exportPDF: 'Export PDF',
+                
+                // Inventory
+                productName: 'Product Name',
+                category: 'Category',
+                quantity: 'Quantity',
+                buyingPrice: 'Buying Price',
+                sellingPrice: 'Selling Price',
+                supplier: 'Supplier',
+                date: 'Date',
+                actions: 'Actions',
+                
+                // Game
+                gameTitle: 'Money Master Challenge',
+                score: 'Score',
+                level: 'Level',
+                question: 'If you buy for $10 and sell for $15, what is your profit?',
+                
+                // Notifications
+                success: 'Operation completed successfully!',
+                error: 'An error occurred!',
+                warning: 'Please check your input!'
+            },
+            so: {
+                // Navigation
+                dashboard: 'Dashboard',
+                inventory: 'Alaabta',
+                sales: 'Iibinta',
+                debts: 'Deemaha',
+                reports: 'Warbixin',
+                orders: 'Alaabta Cusub',
+                customers: 'Macaamiisha',
+                suppliers: 'Shirkadaha',
+                employees: 'Shaqaalaha',
+                expenses: 'Kharashaadka',
+                game: 'Ciyaarta',
+                
+                // Dashboard
+                totalProducts: 'Wadarta Alaabta',
+                totalSales: 'Wadarta Iibinta Maanta',
+                totalDebts: 'Wadarta Deemaha',
+                totalExpenses: 'Wadarta Kharashaadka',
+                totalCustomers: 'Wadarta Macaamiisha',
+                salesChart: 'Jaantuska Iibinta',
+                profitChart: 'Jaantuska Faa'iidada',
+                welcomeMessage: 'Soo dhawoow, Admin!',
+                
+                // Buttons
+                addProduct: 'Kudar Alaab',
+                newSale: 'Iib Cusub',
+                printReport: 'Daabac Warbixin',
+                exportPDF: 'Soo saar PDF',
+                
+                // Inventory
+                productName: 'Magaca Alaabta',
+                category: 'Nooca',
+                quantity: 'Tirada',
+                buyingPrice: 'Qiima Iibsasho',
+                sellingPrice: 'Qiima Iibin',
+                supplier: 'Shirkadda',
+                date: 'Taariikhda',
+                actions: 'Hawlaha',
+                
+                // Game
+                gameTitle: 'Tartanka Lacagta',
+                score: 'Dhibcaha',
+                level: 'Heerka',
+                question: 'Haddii aad iibsato $10 oo aad iibiso $15, waa maxay faa'iidada?',
+                
+                // Notifications
+                success: 'Hawlgalkii waa lagu guuleystay!',
+                error: 'Khalad ayaa dhacay!',
+                warning: 'Fadlan hubi waxa aad gelisay!'
+            }
+        };
+
+        // State Management
+        let currentPage = 'dashboard';
+        let products = JSON.parse(localStorage.getItem('products')) || [];
+        let sales = JSON.parse(localStorage.getItem('sales')) || [];
+        let debts = JSON.parse(localStorage.getItem('debts')) || [];
+        let customers = JSON.parse(localStorage.getItem('customers')) || [];
+        let suppliers = JSON.parse(localStorage.getItem('suppliers')) || [];
+        let employees = JSON.parse(localStorage.getItem('employees')) || [];
+        let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+        let gameScore = parseInt(localStorage.getItem('gameScore')) || 0;
+        let gameLevel = 1;
+        let charts = {};
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current year
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            
+            // Load default page
+            loadPage('dashboard');
+            
+            // Language toggle
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentLang = this.dataset.lang;
+                    updateLanguage();
+                });
+            });
+            
+            // Theme toggle
+            document.getElementById('themeToggle').addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                const icon = this.querySelector('i');
+                if (document.body.classList.contains('dark-mode')) {
+                    icon.className = 'fas fa-sun';
+                } else {
+                    icon.className = 'fas fa-moon';
+                }
+            });
+            
+            // Navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    loadPage(this.dataset.page);
+                });
+            });
+        });
+
+        // Load Page Content
+        function loadPage(page) {
+            currentPage = page;
+            document.getElementById('pageTitle').textContent = translations[currentLang][page] || page;
+            
+            const contentArea = document.getElementById('contentArea');
+            
+            switch(page) {
+                case 'dashboard':
+                    renderDashboard(contentArea);
+                    break;
+                case 'inventory':
+                    renderInventory(contentArea);
+                    break;
+                case 'sales':
+                    renderSales(contentArea);
+                    break;
+                case 'debts':
+                    renderDebts(contentArea);
+                    break;
+                case 'reports':
+                    renderReports(contentArea);
+                    break;
+                case 'orders':
+                    renderOrders(contentArea);
+                    break;
+                case 'customers':
+                    renderCustomers(contentArea);
+                    break;
+                case 'suppliers':
+                    renderSuppliers(contentArea);
+                    break;
+                case 'employees':
+                    renderEmployees(contentArea);
+                    break;
+                case 'expenses':
+                    renderExpenses(contentArea);
+                    break;
+                case 'game':
+                    renderGame(contentArea);
+                    break;
+            }
+        }
+
+        // Dashboard
+        function renderDashboard(container) {
+            const totalProducts = products.length;
+            const totalSalesToday = sales.filter(s => new Date(s.date).toDateString() === new Date().toDateString()).reduce((sum, s) => sum + s.total, 0);
+            const totalDebts = debts.reduce((sum, d) => sum + (d.total - d.paid), 0);
+            const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+            const totalCustomers = customers.length;
+
+            container.innerHTML = `
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="openModal('addProduct')">
+                        <i class="fas fa-plus"></i> ${translations[currentLang].addProduct}
+                    </button>
+                    <button class="quick-btn" onclick="openModal('newSale')">
+                        <i class="fas fa-cash-register"></i> ${translations[currentLang].newSale}
+                    </button>
+                    <button class="quick-btn" onclick="printReport()">
+                        <i class="fas fa-print"></i> ${translations[currentLang].printReport}
+                    </button>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="stat-card glass-card">
+                        <div class="stat-info">
+                            <h3>${translations[currentLang].totalProducts}</h3>
+                            <div class="stat-number" id="statProducts">0</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card glass-card">
+                        <div class="stat-info">
+                            <h3>${translations[currentLang].totalSales}</h3>
+                            <div class="stat-number" id="statSales">$0</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card glass-card">
+                        <div class="stat-info">
+                            <h3>${translations[currentLang].totalDebts}</h3>
+                            <div class="stat-number" id="statDebts">$0</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card glass-card">
+                        <div class="stat-info">
+                            <h3>${translations[currentLang].totalExpenses}</h3>
+                            <div class="stat-number" id="statExpenses">$0</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card glass-card">
+                        <div class="stat-info">
+                            <h3>${translations[currentLang].totalCustomers}</h3>
+                            <div class="stat-number" id="statCustomers">0</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card glass-card">
+                        <div class="chart-title">${translations[currentLang].salesChart}</div>
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-card glass-card">
+                        <div class="chart-title">${translations[currentLang].profitChart}</div>
+                        <canvas id="profitChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card" style="padding: 1.5rem;">
+                    <h2 style="color: var(--orange); margin-bottom: 1rem;">${translations[currentLang].welcomeMessage}</h2>
+                    <p>Last login: ${new Date().toLocaleString()}</p>
+                </div>
+            `;
+
+            // Animate counters
+            animateCounter('statProducts', totalProducts);
+            animateCounter('statSales', totalSalesToday, true);
+            animateCounter('statDebts', totalDebts, true);
+            animateCounter('statExpenses', totalExpenses, true);
+            animateCounter('statCustomers', totalCustomers);
+
+            // Initialize charts
+            setTimeout(() => {
+                initCharts();
+            }, 100);
+        }
+
+        // Inventory
+        function renderInventory(container) {
+            container.innerHTML = `
+                <div class="quick-actions">
+                    <button class="quick-btn" onclick="openModal('addProduct')">
+                        <i class="fas fa-plus"></i> ${translations[currentLang].addProduct}
+                    </button>
+                    <button class="quick-btn" onclick="printInventory()">
+                        <i class="fas fa-print"></i> ${translations[currentLang].printReport}
+                    </button>
+                </div>
+
+                <div class="table-container glass-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>${translations[currentLang].productName}</th>
+                                <th>${translations[currentLang].category}</th>
+                                <th>${translations[currentLang].quantity}</th>
+                                <th>${translations[currentLang].buyingPrice}</th>
+                                <th>${translations[currentLang].sellingPrice}</th>
+                                <th>${translations[currentLang].supplier}</th>
+                                <th>${translations[currentLang].date}</th>
+                                <th>${translations[currentLang].actions}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            ${products.map(p => `
+                                <tr>
+                                    <td>${p.name}</td>
+                                    <td>${p.category}</td>
+                                    <td>${p.quantity}</td>
+                                    <td>$${p.buyingPrice}</td>
+                                    <td>$${p.sellingPrice}</td>
+                                    <td>${p.supplier}</td>
+                                    <td>${new Date(p.date).toLocaleDateString()}</td>
+                                    <td>
+                                        <button class="btn btn-primary" onclick="editProduct('${p.id}')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger" onclick="deleteProduct('${p.id}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // Game
+        function renderGame(container) {
+            container.innerHTML = `
+                <div class="game-section glass-card">
+                    <div class="game-title">🎮 ${translations[currentLang].gameTitle}</div>
+                    
+                    <div class="game-stats">
+                        <div class="game-stat">${translations[currentLang].score}: <span id="gameScore">${gameScore}</span></div>
+                        <div class="game-stat">${translations[currentLang].level}: <span id="gameLevel">${gameLevel}</span></div>
+                    </div>
+                    
+                    <div class="game-question" id="gameQuestion">${translations[currentLang].question}</div>
+                    
+                    <div class="game-options" id="gameOptions">
+                        <div class="game-option" onclick="checkAnswer(5)">$5</div>
+                        <div class="game-option" onclick="checkAnswer(10)">$10</div>
+                        <div class="game-option" onclick="checkAnswer(15)">$15</div>
+                        <div class="game-option" onclick="checkAnswer(20)">$20</div>
+                    </div>
+                    
+                    <div class="leaderboard">
+                        <h3>🏆 Leaderboard</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Player</th>
+                                        <th>Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>1</td><td>Ahmed</td><td>1000</td></tr>
+                                    <tr><td>2</td><td>Fatima</td><td>850</td></tr>
+                                    <tr><td>3</td><td>Mohamed</td><td>700</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Helper Functions
+        function updateLanguage() {
+            document.querySelectorAll('[data-en]').forEach(el => {
+                const key = el.getAttribute('data-en').toLowerCase().replace(/\s+/g, '');
+                el.textContent = translations[currentLang][key] || el.getAttribute(`data-${currentLang}`);
+            });
+            document.getElementById('pageTitle').textContent = translations[currentLang][currentPage] || currentPage;
+        }
+
+        function animateCounter(elementId, target, isCurrency = false) {
+            const element = document.getElementById(elementId);
+            let current = 0;
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = isCurrency ? `$${Math.round(current).toLocaleString()}` : Math.round(current).toLocaleString();
+            }, 20);
+        }
+
+        function initCharts() {
+            // Sales Chart
+            const salesCtx = document.getElementById('salesChart')?.getContext('2d');
+            if (salesCtx) {
+                new Chart(salesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Sales',
+                            data: [1200, 1900, 1500, 2100, 1800, 2400, 2000],
+                            borderColor: '#ff6600',
+                            backgroundColor: 'rgba(255, 102, 0, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#fff' }
+                            }
+                        },
+                        scales: {
+                            y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
+                            x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } }
+                        }
+                    }
+                });
+            }
+
+            // Profit Chart
+            const profitCtx = document.getElementById('profitChart')?.getContext('2d');
+            if (profitCtx) {
+                new Chart(profitCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Profit',
+                            data: [300, 450, 380, 520, 430, 600, 500],
+                            backgroundColor: '#10b981',
+                            borderRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#fff' }
+                            }
+                        },
+                        scales: {
+                            y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
+                            x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function openModal(type) {
+            const modal = document.getElementById('modal');
+            const modalBody = document.getElementById('modalBody');
+            const modalTitle = document.getElementById('modalTitle');
+
+            if (type === 'addProduct') {
+                modalTitle.textContent = translations[currentLang].addProduct;
+                modalBody.innerHTML = `
+                    <form onsubmit="addProduct(event)">
+                        <div class="form-group">
+                            <label class="form-label">${translations[currentLang].productName}</label>
+                            <input class="form-control" id="productName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">${translations[currentLang].category}</label>
+                            <input class="form-control" id="category" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">${translations[currentLang].quantity}</label>
+                            <input class="form-control" id="quantity" type="number" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">${translations[currentLang].buyingPrice}</label>
+                            <input class="form-control" id="buyingPrice" type="number" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">${translations[currentLang].sellingPrice}</label>
+                            <input class="form-control" id="sellingPrice" type="number" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">${translations[currentLang].supplier}</label>
+                            <input class="form-control" id="supplier" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem;">Add Product</button>
+                    </form>
+                `;
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function addProduct(event) {
+            event.preventDefault();
+            
+            const product = {
+                id: Date.now().toString(),
+                name: document.getElementById('productName').value,
+                category: document.getElementById('category').value,
+                quantity: parseInt(document.getElementById('quantity').value),
+                buyingPrice: parseFloat(document.getElementById('buyingPrice').value),
+                sellingPrice: parseFloat(document.getElementById('sellingPrice').value),
+                supplier: document.getElementById('supplier').value,
+                date: new Date().toISOString()
+            };
+
+            products.push(product);
+            localStorage.setItem('products', JSON.stringify(products));
+            
+            closeModal();
+            showNotification(translations[currentLang].success);
+            
+            if (currentPage === 'inventory') {
+                loadPage('inventory');
+            }
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Are you sure?')) {
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('products', JSON.stringify(products));
+                showNotification('Product deleted');
+                loadPage('inventory');
+            }
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function printInventory() {
+            window.print();
+        }
+
+        // Game Functions
+        function checkAnswer(answer) {
+            const correctAnswer = 5; // $5 profit
+            const options = document.querySelectorAll('.game-option');
+            
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+
+            if (answer === correctAnswer) {
+                gameScore += 10;
+                document.querySelector(`.game-option:contains('${answer}')`).classList.add('correct');
+                showNotification('Correct! +10 points', 'success');
+            } else {
+                document.querySelector(`.game-option:contains('${answer}')`).classList.add('incorrect');
+                showNotification('Wrong answer! Try again', 'error');
+            }
+
+            document.getElementById('gameScore').textContent = gameScore;
+            localStorage.setItem('gameScore', gameScore);
+
+            // Load next question after 2 seconds
+            setTimeout(() => {
+                loadNextQuestion();
+            }, 2000);
+        }
+
+        function loadNextQuestion() {
+            const questions = [
+                { question: 'If you buy for $20 and sell for $30, what is your profit?', answer: 10 },
+                { question: 'If you buy for $50 and sell for $75, what is your profit?', answer: 25 },
+                { question: 'If you buy for $100 and sell for $150, what is your profit?', answer: 50 }
+            ];
+            
+            const randomQ = questions[Math.floor(Math.random() * questions.length)];
+            document.getElementById('gameQuestion').textContent = randomQ.question;
+            
+            const options = document.querySelectorAll('.game-option');
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'auto';
+                opt.classList.remove('correct', 'incorrect');
+            });
+        }
+
+        // Export functions
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.addProduct = addProduct;
+        window.deleteProduct = deleteProduct;
+        window.printReport = printReport;
+        window.printInventory = printInventory;
+        window.checkAnswer = checkAnswer;
+    </script>
+</body>
+</html>
